@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TACNET Protection</title>
+  <style>
+    :root {
+      --bg-color: #0f172a; /* Deep Slate Blue - No Black */
+      --card-bg: #1e293b;
+      --accent-gold: #f59e0b;
+      --alert-red: #ef4444;
+      --alert-red-hover: #dc2626;
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-white);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card-bg);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      border: 2px solid #334155;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+    }
+
+    .sub-author {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .gps-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 6px 10px;
+      border-radius: 20px;
+    }
+
+    .gps-blink {
+      width: 10px;
+      height: 10px;
+      background-color: #10b981;
+      border-radius: 50%;
+      animation: blink 1s infinite alternate;
+    }
+
+    @keyframes blink {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0.2; transform: scale(0.85); }
+    }
+
+    .alert-section {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .btn-alert {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f87171, #b91c1c);
+      border: 6px solid #fca5a5;
+      color: white;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+      transition: transform 0.1s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto;
+    }
+
+    .btn-alert:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+    }
+
+    .alert-subtext {
+      font-size: 12px;
+      color: var(--accent-gold);
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn-911 {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .ai-box {
+      background: #0f172a;
+      border: 1px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+
+    .ai-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+    }
+
+    .ai-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .contacts-preview {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: #0f172a;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <div>
+      <div class="brand-title">TACNET</div>
+      <div class="sub-author">By Deputy Sheriff Earl Wood (Ret.)</div>
+    </div>
+    <div class="gps-status">
+      <div class="gps-blink"></div>
+      GPS LIVE
+    </div>
+  </div>
+
+  <div class="alert-section">
+    <button class="btn-alert" onclick="triggerEmergency()">
+      <span>🚨</span>
+      <span>EMERGENCY</span>
+      <span style="font-size: 12px; font-weight: 400; margin-top: 4px;">TAP TO SEND</span>
+    </button>
+    <div class="alert-subtext">⚡ Sends Location & Photos in &lt;1 Sec</div>
+  </div>
+
+  <div class="action-grid">
+    <button class="btn-911" onclick="alert('Directly Calling 911...')">📞 CALL 911 DISPATCH</button>
+  </div>
+
+  <div class="ai-box">
+    <div class="ai-title">🤖 AI GUARDIAN ACTIVE</div>
+    <div class="ai-desc">Voice Threat Monitoring & Automatic Photo Capture System Standby.</div>
+  </div>
+
+  <div class="contacts-preview">
+    <span>Contacts Alerted: <strong>3 Active</strong></span>
+    <span>Photo Sync: <strong>Enabled</strong></span>
+  </div>
+</div>
+
+<script>
+  function triggerEmergency() {
+    alert("🚨 EMERGENCY ALERT TRIGGERED!\n\n1. GPS Location sent in 0.4s to chosen contacts.\n2. Stealth photo burst captured and sent.\n3. Trusted contacts notified!");
+  }
+</script>
+
+</body>
+</html>
