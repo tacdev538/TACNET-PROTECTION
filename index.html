@@ -3,215 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TACNET Protection</title>
+  <title>AuraGuard - Mobile Safety Prototype</title>
   <style>
-    :root {
-      --bg-color: #0f172a; /* Deep Slate Blue - No Black */
-      --card-bg: #1e293b;
-      --accent-gold: #f59e0b;
-      --alert-red: #ef4444;
-      --alert-red-hover: #dc2626;
-      --text-white: #f8fafc;
-      --text-muted: #94a3b8;
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    
+    /* Device Frame */
+    .phone {
+      width: 380px; height: 750px; background: #000; border-radius: 40px;
+      border: 8px solid #334155; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+    }
+    
+    /* Top Bar */
+    .header { padding: 20px 20px 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; }
+    .status-badge { background: #065f46; color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+
+    /* Map Mockup */
+    .map-box {
+      margin: 10px 20px; height: 180px; background: #1e293b; border-radius: 16px;
+      position: relative; overflow: hidden; border: 1px solid #334155;
+    }
+    .grid-lines {
+      width: 100%; height: 100%;
+      background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px);
+      background-size: 30px 30px; opacity: 0.3;
+    }
+    
+    /* Blinking Beacon */
+    .beacon {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 18px; height: 18px; background: #ef4444; border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 1);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+      100% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-white);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    /* Red Alert Button */
+    .emergency-section { text-align: center; margin-bottom: 25px; }
+    .red-btn {
+      width: 170px; height: 170px; border-radius: 50%;
+      background: radial-gradient(circle, #ff2a2a 0%, #b91c1c 100%);
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      color: white; font-weight: 900; font-size: 18px; cursor: pointer;
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
+      transition: transform 0.1s;
+      outline: none;
     }
+    .red-btn:active { transform: scale(0.94); }
 
-    .app-container {
-      width: 100%;
-      max-width: 400px;
-      background: var(--card-bg);
-      border-radius: 28px;
-      padding: 24px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-      border: 2px solid #334155;
+    /* Alert Active Overlay */
+    .alert-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: #7f1d1d; display: none; flex-direction: column;
+      justify-content: center; align-items: center; text-align: center;
+      padding: 20px; z-index: 10;
     }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #334155;
-      padding-bottom: 12px;
-      margin-bottom: 20px;
+    .strobe { animation: strobeEffect 0.3s infinite alternate; }
+    @keyframes strobeEffect {
+      from { background: #991b1b; }
+      to { background: #1e1b4b; }
     }
-
-    .brand-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--accent-gold);
-      letter-spacing: 1px;
+    .progress-bar-container {
+      width: 80%; height: 10px; background: #334155; border-radius: 5px; margin: 15px 0; overflow: hidden;
     }
+    .progress-bar { width: 100%; height: 100%; background: #fbbf24; transition: width 4s linear; }
 
-    .sub-author {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .gps-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.1);
-      padding: 6px 10px;
-      border-radius: 20px;
-    }
-
-    .gps-blink {
-      width: 10px;
-      height: 10px;
-      background-color: #10b981;
-      border-radius: 50%;
-      animation: blink 1s infinite alternate;
-    }
-
-    @keyframes blink {
-      from { opacity: 1; transform: scale(1); }
-      to { opacity: 0.2; transform: scale(0.85); }
-    }
-
-    .alert-section {
-      text-align: center;
-      margin: 30px 0;
-    }
-
-    .btn-alert {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f87171, #b91c1c);
-      border: 6px solid #fca5a5;
-      color: white;
-      font-size: 22px;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
-      transition: transform 0.1s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin: 0 auto;
-    }
-
-    .btn-alert:active {
-      transform: scale(0.95);
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
-    }
-
-    .alert-subtext {
-      font-size: 12px;
-      color: var(--accent-gold);
-      margin-top: 12px;
-      font-weight: 600;
-    }
-
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .btn-911 {
-      background: #dc2626;
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-      text-align: center;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-    }
-
-    .ai-box {
-      background: #0f172a;
-      border: 1px solid var(--accent-gold);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 20px;
-    }
-
-    .ai-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent-gold);
-      margin-bottom: 6px;
-    }
-
-    .ai-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    .contacts-preview {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-muted);
-      background: #0f172a;
-      padding: 10px 14px;
-      border-radius: 10px;
+    /* Fast Action Bar */
+    .action-row { display: flex; justify-content: space-around; margin: 0 15px; }
+    .action-btn {
+      background: #1e293b; border: 1px solid #475569; color: white;
+      padding: 10px 14px; border-radius: 12px; font-size: 11px; cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="phone">
+  <!-- Top bar -->
   <div class="header">
-    <div>
-      <div class="brand-title">TACNET</div>
-      <div class="sub-author">By Deputy Sheriff Earl Wood (Ret.)</div>
-    </div>
-    <div class="gps-status">
-      <div class="gps-blink"></div>
-      GPS LIVE
+    <span>09:42</span>
+    <span class="status-badge">● GUARD ACTIVE</span>
+    <span>88% 🔋</span>
+  </div>
+
+  <!-- Map Display -->
+  <div class="map-box">
+    <div class="grid-lines"></div>
+    <div class="beacon"></div>
+    <div style="position:absolute; bottom: 8px; left: 10px; font-size: 11px; color: #94a3b8;">
+      📍 Riverside Trail • Beacon Live
     </div>
   </div>
 
-  <div class="alert-section">
-    <button class="btn-alert" onclick="triggerEmergency()">
-      <span>🚨</span>
-      <span>EMERGENCY</span>
-      <span style="font-size: 12px; font-weight: 400; margin-top: 4px;">TAP TO SEND</span>
+  <!-- Auxiliary Features -->
+  <div class="action-row">
+    <button class="action-btn" onclick="alert('Simulating incoming call from Dad...')">📞 Fake Call</button>
+    <button class="action-btn" onclick="alert('5-Minute Dead-man timer armed.')">⏱️ Walk Timer</button>
+    <button class="action-btn" onclick="alert('Silent SOS broadcasted quietly.')">🤫 Silent SOS</button>
+  </div>
+
+  <!-- Emergency Section -->
+  <div class="emergency-section">
+    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">TAP FOR 4-SEC SIREN & PHOTO BURST</p>
+    <button class="red-btn" id="panicButton" onclick="triggerAlert()">
+      EMERGENCY<br>ALERT
     </button>
-    <div class="alert-subtext">⚡ Sends Location & Photos in &lt;1 Sec</div>
   </div>
 
-  <div class="action-grid">
-    <button class="btn-911" onclick="alert('Directly Calling 911...')">📞 CALL 911 DISPATCH</button>
-  </div>
+  <!-- Alert Screen Modal -->
+  <div class="alert-overlay strobe" id="alertOverlay">
+    <h1 style="font-size: 32px; margin: 0;">🚨 SIREN ACTIVE</h1>
+    <p style="font-size: 13px; margin: 5px 0;">Audible Deterrent Running (120dB)</p>
+    
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="pBar"></div>
+    </div>
+    
+    <div id="statusLog" style="font-size: 14px; line-height: 1.6; text-align: left; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; width: 85%;">
+      <div>🔊 Siren Countdown: <b id="timerText">4s</b></div>
+      <div id="camStatus">⏳ Priming dual camera burst...</div>
+      <div id="dispatchStatus">⏳ Locking GPS & Beacon...</div>
+    </div>
 
-  <div class="ai-box">
-    <div class="ai-title">🤖 AI GUARDIAN ACTIVE</div>
-    <div class="ai-desc">Voice Threat Monitoring & Automatic Photo Capture System Standby.</div>
-  </div>
-
-  <div class="contacts-preview">
-    <span>Contacts Alerted: <strong>3 Active</strong></span>
-    <span>Photo Sync: <strong>Enabled</strong></span>
+    <button onclick="resetAlert()" style="margin-top: 20px; background: white; color: black; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer;">
+      Cancel / Disarm
+    </button>
   </div>
 </div>
 
 <script>
-  function triggerEmergency() {
-    alert("🚨 EMERGENCY ALERT TRIGGERED!\n\n1. GPS Location sent in 0.4s to chosen contacts.\n2. Stealth photo burst captured and sent.\n3. Trusted contacts notified!");
+  function triggerAlert() {
+    const overlay = document.getElementById('alertOverlay');
+    const pBar = document.getElementById('pBar');
+    const timerText = document.getElementById('timerText');
+    const camStatus = document.getElementById('camStatus');
+    const dispatchStatus = document.getElementById('dispatchStatus');
+
+    overlay.style.display = 'flex';
+    pBar.style.width = '0%';
+
+    let timeLeft = 4;
+    const interval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        timerText.innerText = timeLeft + 's';
+      } else {
+        clearInterval(interval);
+        timerText.innerText = '0s (SIREN ENDED)';
+        
+        // 4.0s - Siren ends, trigger dual photo capture
+        camStatus.innerHTML = "📸 <b>Adversary Photos Captured (5 Frames Front/Back)</b>";
+        
+        // <2.0s Dispatch transmission
+        setTimeout(() => {
+          dispatchStatus.innerHTML = "⚡ <b>Dispatched to 3 Guardians in 1.2s</b><br>🛰️ Live Blinking Beacon Broadcasting";
+        }, 800);
+      }
+    }, 1000);
+  }
+
+  function resetAlert() {
+    document.getElementById('alertOverlay').style.display = 'none';
+    document.getElementById('pBar').style.width = '100%';
+    document.getElementById('timerText').innerText = '4s';
+    document.getElementById('camStatus').innerText = '⏳ Priming dual camera burst...';
+    document.getElementById('dispatchStatus').innerText = '⏳ Locking GPS & Beacon...';
   }
 </script>
 
